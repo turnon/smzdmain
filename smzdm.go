@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -21,8 +23,14 @@ func (e *entry) toStr() string {
 	return time + " " + title + " " + price
 }
 
-func main() {
-	resp, err := http.Get("http://search.smzdm.com/?c=home&s=%E5%BE%B7%E8%8A%99&v=b")
+type search struct {
+	keyword string
+}
+
+func (s *search) process() {
+	keyword := url.QueryEscape(s.keyword)
+
+	resp, err := http.Get("http://search.smzdm.com/?c=home&s=" + keyword + "&v=b")
 
 	if err != nil {
 		panic(err)
@@ -36,8 +44,32 @@ func main() {
 		panic(err)
 	}
 
+	s.printKeyword()
+
 	doc.Find("#feed-main-list .z-feed-content").Each(func(i int, s *goquery.Selection) {
 		record := (&entry{s}).toStr()
 		fmt.Println(record)
 	})
+}
+
+func (s *search) printKeyword() {
+	dash := strings.Repeat("-", (20 - len(s.keyword)))
+	fmt.Println(s.keyword + " " + dash)
+}
+
+func main() {
+	flag.Parse()
+	keywords := flag.Args()
+
+	if len(keywords) <= 0 {
+		fmt.Println("no keyword given")
+		return
+	}
+
+	for i, k := range keywords {
+		if i > 0 {
+			fmt.Println()
+		}
+		(&search{k}).process()
+	}
 }
