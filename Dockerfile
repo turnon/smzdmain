@@ -1,19 +1,18 @@
 FROM golang:alpine as builder
 
-WORKDIR /go/src
+WORKDIR $GOPATH/src/github.com/turnon/smzdm
 COPY *.go ./
 
-RUN apk add --no-cache git mercurial \
+RUN apk add --no-cache git \
     && git clone https://github.com/golang/net $GOPATH/src/golang.org/x/net \
-    && go get github.com/PuerkitoBio/goquery \
-    && go get github.com/fatih/color \
-    && go build -o smzdm \
-    && apk del git mercurial
+    && go get ./... \
+    && go build -o /smzdm \
+    && apk del git
 
 FROM alpine:latest
 
 WORKDIR /root/
-COPY --from=builder /go/src/smzdm .
+COPY --from=builder /smzdm .
 RUN chmod +x /root/smzdm
 
 ENTRYPOINT ["/root/smzdm"]
