@@ -1,36 +1,35 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/fatih/color"
 )
 
 type entry struct {
-	s *goquery.Selection
+	title, price, time string
 }
 
-func (e *entry) printf() {
-	title := strings.TrimSpace(e.s.Find(".feed-block-title a").First().Text())
-	price := strings.TrimSpace(e.s.Find(".feed-block-title a div").First().Text())
-	timeBlock := e.s.Find(".feed-block-extras").First()
+func (e *entry) extract(s *goquery.Selection) *entry {
+	e.title = strings.TrimSpace(s.Find(".feed-block-title a").First().Text())
+	e.price = strings.TrimSpace(s.Find(".feed-block-title a div").First().Text())
+	timeBlock := s.Find(".feed-block-extras").First()
 	timeBlock.Children().Remove()
-	time := strings.TrimSpace(timeBlock.Text())
-	fmt.Printf("%-13s %s  ", time, title)
-	color.Green(price)
+	e.time = strings.TrimSpace(timeBlock.Text())
+	return e
 }
 
 type search struct {
 	keyword string
+	entries []*entry
 }
 
-func (s *search) process() {
-	keyword := url.QueryEscape(s.keyword)
+func (s *search) ing(k string) *search {
+	s.keyword = k
 
+	keyword := url.QueryEscape(s.keyword)
 	resp, err := http.Get("http://search.smzdm.com/?c=home&s=" + keyword + "&v=b")
 
 	if err != nil {
@@ -45,14 +44,10 @@ func (s *search) process() {
 		panic(err)
 	}
 
-	s.printkeyword()
-
-	doc.Find("#feed-main-list .z-feed-content").Each(func(i int, s *goquery.Selection) {
-		(&entry{s}).printf()
+	doc.Find("#feed-main-list .z-feed-content").Each(func(i int, selection *goquery.Selection) {
+		e := new(entry).extract(selection)
+		s.entries = append(s.entries, e)
 	})
-}
 
-func (s *search) printkeyword() {
-	dash := strings.Repeat("-", (20 - len(s.keyword)))
-	color.Red(s.keyword + " " + dash)
+	return s
 }
