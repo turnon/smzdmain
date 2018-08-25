@@ -5,11 +5,6 @@ import (
 	"fmt"
 )
 
-type output interface {
-	collect(*search)
-	print()
-}
-
 func main() {
 	flag.Parse()
 	keywords := flag.Args()
@@ -19,7 +14,7 @@ func main() {
 		return
 	}
 
-	var result output = new(stdout)
+	var result output = new(html)
 
 	for _, k := range keywords {
 		s := new(search).ing(k)

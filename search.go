@@ -8,29 +8,37 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+const (
+	https = "https:"
+	root  = "http://search.smzdm.com/"
+	query = root + "/?v=b&c=home&s="
+)
+
 type entry struct {
-	title, price, time string
+	Title, Price, Time, Img string
 }
 
 func (e *entry) extract(s *goquery.Selection) *entry {
-	e.title = strings.TrimSpace(s.Find(".feed-block-title a").First().Text())
-	e.price = strings.TrimSpace(s.Find(".feed-block-title a div").First().Text())
+	e.Title = strings.TrimSpace(s.Find(".feed-block-title a").First().Text())
+	e.Price = strings.TrimSpace(s.Find(".feed-block-title a div").First().Text())
 	timeBlock := s.Find(".feed-block-extras").First()
 	timeBlock.Children().Remove()
-	e.time = strings.TrimSpace(timeBlock.Text())
+	e.Time = strings.TrimSpace(timeBlock.Text())
+	img, _ := s.Find("img").First().Attr("src")
+	e.Img = https + img
 	return e
 }
 
 type search struct {
-	keyword string
-	entries []*entry
+	Keyword string
+	Entries []*entry
 }
 
 func (s *search) ing(k string) *search {
-	s.keyword = k
+	s.Keyword = k
 
-	keyword := url.QueryEscape(s.keyword)
-	resp, err := http.Get("http://search.smzdm.com/?c=home&s=" + keyword + "&v=b")
+	key := url.QueryEscape(s.Keyword)
+	resp, err := http.Get(query + key)
 
 	if err != nil {
 		panic(err)
@@ -44,9 +52,9 @@ func (s *search) ing(k string) *search {
 		panic(err)
 	}
 
-	doc.Find("#feed-main-list .z-feed-content").Each(func(i int, selection *goquery.Selection) {
+	doc.Find("#feed-main-list .feed-block").Each(func(i int, selection *goquery.Selection) {
 		e := new(entry).extract(selection)
-		s.entries = append(s.entries, e)
+		s.Entries = append(s.Entries, e)
 	})
 
 	return s

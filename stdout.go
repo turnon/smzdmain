@@ -8,11 +8,7 @@ import (
 )
 
 type stdout struct {
-	searches []*search
-}
-
-func (out *stdout) collect(s *search) {
-	out.searches = append(out.searches, s)
+	resultSet
 }
 
 func (out *stdout) print() {
@@ -21,12 +17,12 @@ func (out *stdout) print() {
 			fmt.Println()
 		}
 
-		dash := strings.Repeat("-", (20 - len(s.keyword)))
-		color.Red(s.keyword + " " + dash)
+		dash := strings.Repeat("-", (20 - len(s.Keyword)))
+		color.Red(s.Keyword + " " + dash)
 
-		for _, e := range s.entries {
-			fmt.Printf("%-13s %s  ", e.time, e.title)
-			color.Green(e.price)
+		for _, e := range s.Entries {
+			fmt.Printf("%-13s %s  ", e.Time, e.Title)
+			color.Green(e.Price)
 		}
 	}
 }
