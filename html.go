@@ -24,26 +24,32 @@ const templateStr string = `
     <title>template</title>
     <style>
         body {
-            width: 75%;
+            width: 1260px;
             margin: auto;
         }
 
         nav {
+			width: 1260px;
             font-size: 2em;
             position: fixed;
             padding: 5px;
             background-color: #cddc39;
         }
 
+        nav:not(:hover) {
+            height: 1.3em;
+            overflow-y: hidden;
+        }
+
         .nav {
             color: white;
         }
 
-        a {
+        nav a {
             text-decoration: none;
         }
 
-        a:visited {
+        nav a:visited {
             color: white;
             text-decoration: none;
         }
@@ -99,14 +105,16 @@ const templateStr string = `
         <h1 class='keyword'> {{ .Keyword }} </h1>
         <div class='entries'>
             {{ range .Entries }}
-            <div class='entry'>
-                <img src='{{ .Img }}' />
-                <div class='info'>
-                    <p class='time'> {{ .Time }} </p>
-                    <p class='title'> {{ .Title }} </p>
-                    <p class='price'> {{ .Price }} </p>
+            <a href='{{ .Href }}' target='_blank'>
+                <div class='entry'>
+                    <img src='{{ .Img }}' />
+                    <div class='info'>
+                        <p class='time'> {{ .Time }} </p>
+                        <p class='title'> {{ .Title }} </p>
+                        <p class='price'> {{ .Price }} </p>
+                    </div>
                 </div>
-            </div>
+            </a>
             {{ end }}
         </div>
 

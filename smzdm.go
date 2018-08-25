@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	toHTML := flag.Bool("h", false, "output html")
 	flag.Parse()
 	keywords := flag.Args()
 
@@ -14,7 +15,12 @@ func main() {
 		return
 	}
 
-	var result output = new(html)
+	var result output
+	if *toHTML {
+		result = new(html)
+	} else {
+		result = new(stdout)
+	}
 
 	for _, k := range keywords {
 		s := new(search).ing(k)

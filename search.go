@@ -15,11 +15,13 @@ const (
 )
 
 type entry struct {
-	Title, Price, Time, Img string
+	Title, Price, Time, Img, Href string
 }
 
 func (e *entry) extract(s *goquery.Selection) *entry {
-	e.Title = strings.TrimSpace(s.Find(".feed-block-title a").First().Text())
+	a := s.Find(".feed-block-title a").First()
+	e.Href, _ = a.Attr("href")
+	e.Title = strings.TrimSpace(a.Text())
 	e.Price = strings.TrimSpace(s.Find(".feed-block-title a div").First().Text())
 	timeBlock := s.Find(".feed-block-extras").First()
 	timeBlock.Children().Remove()
