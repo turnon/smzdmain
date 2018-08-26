@@ -23,30 +23,31 @@ const templateStr string = `
     <meta charset="UTF-8">
     <title>template</title>
     <style>
-        body {
-            width: 1260px;
-            margin: auto;
+        a {
+            text-decoration: none;
+            color: black;
         }
 
         nav {
-			width: 1260px;
-            font-size: 2em;
+            width: 8em;
+            font-size: 1.1em;
             position: fixed;
-            padding: 5px;
-            background-color: #cddc39;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            padding: 0;
+            background-color: #E91E63;
         }
 
-        nav:not(:hover) {
-            height: 1.3em;
-            overflow-y: hidden;
-        }
-
-        .nav {
-            color: white;
+        .searches {
+            padding: 0 0 2em 11em;
         }
 
         nav a {
-            text-decoration: none;
+            display: block;
+            color: white;
+            padding: .3em 0 0 1.2em;
         }
 
         nav a:visited {
@@ -54,8 +55,12 @@ const templateStr string = `
             text-decoration: none;
         }
 
-        .nav+.nav:before {
-            content: "|";
+        nav a:hover {
+            color: #8192d6;
+        }
+
+        nav a:first-child {
+            padding-top: 1em;
         }
 
         .entry {
@@ -79,15 +84,20 @@ const templateStr string = `
             margin: 0;
         }
 
-        .searches {
-            padding: 4em 5px 30px 5px;
+        h1 {
+            border-bottom: 1px dotted #cddc39;
+            margin-top: 0;
+            padding: 0 0 10px 0;
+            color: #cddc39;
         }
 
-        h1 {
-            width: 400px;
-            margin: 0;
-            padding: 0 0 10px 0;
-            color: #9c27b0;
+        .time,
+        .title {
+            color: #616161;
+        }
+
+        .price {
+            color: #e91e63;
         }
     </style>
 </head>
