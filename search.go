@@ -32,6 +32,7 @@ func (e *entry) extract(s *goquery.Selection) *entry {
 }
 
 type search struct {
+	doc     *goquery.Document
 	Keyword string
 	Entries []*entry
 }
@@ -48,16 +49,18 @@ func (s *search) ing(k string) *search {
 
 	defer resp.Body.Close()
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	s.doc, err = goquery.NewDocumentFromReader(resp.Body)
 
 	if err != nil {
 		panic(err)
 	}
 
-	doc.Find("#feed-main-list .feed-block").Each(func(i int, selection *goquery.Selection) {
+	return s
+}
+
+func (s *search) extract() {
+	s.doc.Find("#feed-main-list .feed-block").Each(func(i int, selection *goquery.Selection) {
 		e := new(entry).extract(selection)
 		s.Entries = append(s.Entries, e)
 	})
-
-	return s
 }
