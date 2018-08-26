@@ -5,6 +5,7 @@ type resultSet struct {
 }
 
 func (rs *resultSet) collect(s *search) {
+	s.extract()
 	rs.searches = append(rs.searches, s)
 }
 
