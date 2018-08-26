@@ -1,37 +1,46 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/fatih/color"
+)
+
+const (
+	https = "https:"
+	root  = "http://search.smzdm.com/"
+	query = root + "/?v=b&c=home&s="
 )
 
 type entry struct {
-	s *goquery.Selection
+	Title, Price, Time, Img, Href string
 }
 
-func (e *entry) printf() {
-	title := strings.TrimSpace(e.s.Find(".feed-block-title a").First().Text())
-	price := strings.TrimSpace(e.s.Find(".feed-block-title a div").First().Text())
-	timeBlock := e.s.Find(".feed-block-extras").First()
+func (e *entry) extract(s *goquery.Selection) *entry {
+	a := s.Find(".feed-block-title a").First()
+	e.Href, _ = a.Attr("href")
+	e.Title = strings.TrimSpace(a.Text())
+	e.Price = strings.TrimSpace(s.Find(".feed-block-title a div").First().Text())
+	timeBlock := s.Find(".feed-block-extras").First()
 	timeBlock.Children().Remove()
-	time := strings.TrimSpace(timeBlock.Text())
-	fmt.Printf("%-13s %s  ", time, title)
-	color.Green(price)
+	e.Time = strings.TrimSpace(timeBlock.Text())
+	img, _ := s.Find("img").First().Attr("src")
+	e.Img = https + img
+	return e
 }
 
 type search struct {
-	keyword string
+	Keyword string
+	Entries []*entry
 }
 
-func (s *search) process() {
-	keyword := url.QueryEscape(s.keyword)
+func (s *search) ing(k string) *search {
+	s.Keyword = k
 
-	resp, err := http.Get("http://search.smzdm.com/?c=home&s=" + keyword + "&v=b")
+	key := url.QueryEscape(s.Keyword)
+	resp, err := http.Get(query + key)
 
 	if err != nil {
 		panic(err)
@@ -45,14 +54,10 @@ func (s *search) process() {
 		panic(err)
 	}
 
-	s.printkeyword()
-
-	doc.Find("#feed-main-list .z-feed-content").Each(func(i int, s *goquery.Selection) {
-		(&entry{s}).printf()
+	doc.Find("#feed-main-list .feed-block").Each(func(i int, selection *goquery.Selection) {
+		e := new(entry).extract(selection)
+		s.Entries = append(s.Entries, e)
 	})
-}
 
-func (s *search) printkeyword() {
-	dash := strings.Repeat("-", (20 - len(s.keyword)))
-	color.Red(s.keyword + " " + dash)
+	return s
 }
