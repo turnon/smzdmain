@@ -2,28 +2,13 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"sync"
 )
 
 const keysWorkerCount int = 2
 
 func main() {
-	toHTML := flag.Bool("h", false, "output html")
-	flag.Parse()
-	keywords := flag.Args()
-
-	if len(keywords) <= 0 {
-		fmt.Println("no keyword given")
-		return
-	}
-
-	var result output
-	if *toHTML {
-		result = new(html)
-	} else {
-		result = new(stdout)
-	}
+	keywords, result := ioHolder()
 
 	keysCh := make(chan string)
 	searchesCh := make(chan *search)
@@ -56,4 +41,22 @@ func main() {
 	close(searchesCh)
 	resultWg.Wait()
 	result.print()
+}
+
+func ioHolder() ([]string, output) {
+	var result output
+	toHTML := flag.Bool("h", false, "output html")
+	flag.Parse()
+	keywords := flag.Args()
+
+	if len(keywords) <= 0 {
+		panic("no keyword given")
+	}
+
+	if *toHTML {
+		result = new(html)
+	} else {
+		result = new(stdout)
+	}
+	return keywords, result
 }
