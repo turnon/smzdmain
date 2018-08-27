@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"os"
+	"time"
 )
 
 type html struct {
@@ -12,7 +13,8 @@ type html struct {
 func (out *html) print() {
 	t := template.New("a")
 	t.Parse(templateStr)
-	t.Execute(os.Stdout, map[string]interface{}{"data": out.searches})
+	now := time.Now().Format("06-01-02 15:04:05")
+	t.Execute(os.Stdout, map[string]interface{}{"data": out.searches, "now": now})
 }
 
 const templateStr string = `
@@ -21,7 +23,7 @@ const templateStr string = `
 
 <head>
     <meta charset="UTF-8">
-    <title>template</title>
+    <title>{{ .now }}</title>
     <style>
         a {
             text-decoration: none;
