@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bufio"
+	"encoding/base64"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -9,10 +12,13 @@ import (
 )
 
 const (
-	https = "https:"
-	root  = "http://search.smzdm.com/"
-	query = root + "/?v=b&c=home&s="
+	https        = "https:"
+	root         = "http://search.smzdm.com/"
+	query        = root + "/?v=b&c=home&s="
+	base64Prefix = "data:image/jpg;base64,"
 )
+
+var officialImgServer = []string{"zdmimg.com", "smzdm.com"}
 
 type entry struct {
 	Title, Price, Time, Img, Href string
@@ -27,8 +33,36 @@ func (e *entry) extract(s *goquery.Selection) *entry {
 	timeBlock.Children().Remove()
 	e.Time = strings.TrimSpace(timeBlock.Text())
 	img, _ := s.Find("img").First().Attr("src")
-	e.Img = https + img
+	e.keepImg(https + img)
 	return e
+}
+
+func (e *entry) keepImg(img string) {
+	if !needConvert(img) {
+		e.Img = img
+		return
+	}
+
+	resp, err := http.Get(img)
+	if err != nil {
+		e.Img = img
+		return
+	}
+	defer resp.Body.Close()
+
+	reader := bufio.NewReader(resp.Body)
+	content, _ := ioutil.ReadAll(reader)
+	str := base64.StdEncoding.EncodeToString(content)
+	e.Img = base64Prefix + str
+}
+
+func needConvert(img string) bool {
+	for _, server := range officialImgServer {
+		if strings.Contains(img, server) {
+			return true
+		}
+	}
+	return false
 }
 
 type search struct {
