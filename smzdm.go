@@ -2,14 +2,39 @@ package main
 
 import (
 	"flag"
+	"net/http"
+	"strings"
 	"sync"
 )
 
 const keysWorkerCount int = 2
 
 func main() {
-	keywords, result := ioHolder()
+	var result output
+	toHTML := flag.Bool("h", false, "output html")
+	webServer := flag.Bool("w", false, "work as webserver")
+	flag.Parse()
+	keywords := flag.Args()
 
+	if *webServer {
+		runServer()
+		return
+	}
+
+	if len(keywords) <= 0 {
+		panic("no keyword given")
+	}
+
+	if *toHTML {
+		result = new(html)
+	} else {
+		result = new(stdout)
+	}
+
+	process(keywords, result).print()
+}
+
+func process(keywords []string, result output) output {
 	keysCh := make(chan string)
 	searchesCh := make(chan *search)
 	var keysWg, resultWg sync.WaitGroup
@@ -40,23 +65,18 @@ func main() {
 	keysWg.Wait()
 	close(searchesCh)
 	resultWg.Wait()
-	result.print()
+	return result
 }
 
-func ioHolder() ([]string, output) {
-	var result output
-	toHTML := flag.Bool("h", false, "output html")
-	flag.Parse()
-	keywords := flag.Args()
-
-	if len(keywords) <= 0 {
-		panic("no keyword given")
-	}
-
-	if *toHTML {
-		result = new(html)
-	} else {
-		result = new(stdout)
-	}
-	return keywords, result
+func runServer() {
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		q := request.URL.Query()["q"]
+		if len(q) == 0 {
+			return
+		}
+		keys := strings.Split(q[0], " ")
+		htmlOutput := new(html)
+		process(keys, htmlOutput).print(writer)
+	})
+	http.ListenAndServe(":80", nil)
 }

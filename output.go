@@ -1,5 +1,9 @@
 package main
 
+import (
+	"io"
+)
+
 type resultSet struct {
 	searches []*search
 }
@@ -11,5 +15,5 @@ func (rs *resultSet) collect(s *search) {
 
 type output interface {
 	collect(*search)
-	print()
+	print(...io.Writer)
 }

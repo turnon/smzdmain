@@ -2,6 +2,7 @@ package main
 
 import (
 	"html/template"
+	"io"
 	"os"
 	"time"
 )
@@ -10,11 +11,18 @@ type html struct {
 	resultSet
 }
 
-func (out *html) print() {
+func (out *html) print(ws ...io.Writer) {
+	var w io.Writer
+	if len(ws) == 0 {
+		w = os.Stdout
+	} else {
+		w = ws[0]
+	}
+
 	t := template.New("a")
 	t.Parse(templateStr)
 	now := time.Now().Format("06-01-02 15:04:05")
-	t.Execute(os.Stdout, map[string]interface{}{"data": out.searches, "now": now})
+	t.Execute(w, map[string]interface{}{"data": out.searches, "now": now})
 }
 
 const templateStr string = `
