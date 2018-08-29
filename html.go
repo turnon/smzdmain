@@ -30,7 +30,8 @@ const templateStr string = `
 <html>
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="referrer" content="no-referrer" />
     <title>{{ .now }}</title>
     <style>
         a {
