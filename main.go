@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 )
 
 const keysWorkerCount int = 2
@@ -18,7 +19,7 @@ func main() {
 	keywords := flag.Args()
 
 	if *webServer {
-		runServer()
+		runServer(keywords)
 		return
 	}
 
@@ -69,16 +70,59 @@ func process(keywords []string, result output) output {
 	return result
 }
 
-func runServer() {
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		q := request.URL.Query()["q"]
-		if len(q) == 0 {
-			return
+func static(keywords []string) func(writer http.ResponseWriter, request *http.Request) {
+	var (
+		timer      <-chan time.Time
+		m          sync.Mutex
+		htmlOutput output
+	)
+
+	fetch := func() {
+		m.Lock()
+		defer m.Unlock()
+
+		timer = time.After(60 * time.Second)
+		htmlOutput = new(html)
+		process(keywords, htmlOutput)
+		log.Println("pre-fetched")
+	}
+
+	fetch()
+
+	go func() {
+		for {
+			<-timer
+			fetch()
 		}
-		keys := strings.Split(q[0], " ")
-		log.Println(request.RemoteAddr, keys)
-		htmlOutput := new(html)
-		process(keys, htmlOutput).print(writer)
-	})
+	}()
+
+	return func(writer http.ResponseWriter, request *http.Request) {
+		m.Lock()
+		defer m.Unlock()
+		htmlOutput.print(writer)
+	}
+}
+
+func dyna(writer http.ResponseWriter, request *http.Request) {
+	q := request.URL.Query()["q"]
+	if len(q) == 0 {
+		return
+	}
+	keys := strings.Split(q[0], " ")
+	log.Println(request.RemoteAddr, keys)
+	htmlOutput := new(html)
+	process(keys, htmlOutput).print(writer)
+}
+
+func runServer(specificKeys ...[]string) {
+	var handler func(writer http.ResponseWriter, request *http.Request)
+	keys := specificKeys[0]
+	if len(keys) > 0 {
+		handler = static(keys)
+	} else {
+		handler = dyna
+	}
+
+	http.HandleFunc("/", handler)
 	http.ListenAndServe(":80", nil)
 }

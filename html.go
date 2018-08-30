@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"io"
 	"os"
-	"time"
 )
 
 type html struct {
@@ -21,7 +20,7 @@ func (out *html) print(ws ...io.Writer) {
 
 	t := template.New("a")
 	t.Parse(templateStr)
-	now := time.Now().Format("06-01-02 15:04:05")
+	now := out.createdAt.Format("06-01-02 15:04:05")
 	t.Execute(w, map[string]interface{}{"data": out.searches, "now": now})
 }
 
