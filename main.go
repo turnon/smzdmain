@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -75,6 +76,7 @@ func runServer() {
 			return
 		}
 		keys := strings.Split(q[0], " ")
+		log.Println(request.RemoteAddr, keys)
 		htmlOutput := new(html)
 		process(keys, htmlOutput).print(writer)
 	})
