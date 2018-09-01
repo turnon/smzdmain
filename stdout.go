@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/fatih/color"
@@ -11,7 +12,7 @@ type stdout struct {
 	resultSet
 }
 
-func (out *stdout) print() {
+func (out *stdout) print(...io.Writer) {
 	for i, s := range out.searches {
 		if i > 0 {
 			fmt.Println()
