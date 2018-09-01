@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"net/http"
+	"os"
 	"sync"
 )
 
@@ -77,5 +78,12 @@ func runServer(specificKeys ...[]string) {
 	}
 
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":80", nil)
+	http.ListenAndServe(":"+port(), nil)
+}
+
+func port() string {
+	if port := os.Getenv("PORT"); len(port) != 0 {
+		return port
+	}
+	return "80"
 }
