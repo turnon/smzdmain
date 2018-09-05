@@ -47,11 +47,11 @@ const templateStr string = `
             bottom: 0;
             overflow-y: auto;
             padding: 0;
-            background-color: #E91E63;
+            background-color: #8192d6;
         }
 
         .searches {
-            padding: 0 0 2em 11em;
+            padding: 0 3em 2em 11em;
         }
 
         nav a {
@@ -66,7 +66,7 @@ const templateStr string = `
         }
 
         nav a:hover {
-            color: #8192d6;
+            color: #FFEB3B;
         }
 
         nav a:first-child {
@@ -95,10 +95,11 @@ const templateStr string = `
         }
 
         h1 {
-            border-bottom: 1px dotted #cddc39;
+            border-bottom: 1px dotted #8192d6;
             margin-top: 0;
             padding: 0 0 10px 0;
-            color: #cddc39;
+            color: #8192d6;
+            font-weight: normal;
         }
 
         .time,
