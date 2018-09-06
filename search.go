@@ -33,13 +33,12 @@ func (e *entry) extract(s *goquery.Selection) *entry {
 
 type search struct {
 	doc     *goquery.Document
+	Index   int
 	Keyword string
 	Entries []*entry
 }
 
-func (s *search) ing(k string) *search {
-	s.Keyword = k
-
+func (s *search) ing() *search {
 	key := url.QueryEscape(s.Keyword)
 	resp, err := http.Get(query + key)
 

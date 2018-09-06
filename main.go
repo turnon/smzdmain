@@ -35,36 +35,38 @@ func main() {
 }
 
 func process(keywords []string, result output) output {
-	keysCh := make(chan string)
-	searchesCh := make(chan *search)
-	var keysWg, resultWg sync.WaitGroup
-	keysWg.Add(keysWorkerCount)
+	searching := make(chan *search)
+	searched := make(chan *search)
+	var searchWg, resultWg sync.WaitGroup
+	searchWg.Add(keysWorkerCount)
 	resultWg.Add(1)
 
 	for n := keysWorkerCount; n > 0; n-- {
 		go func() {
-			for k := range keysCh {
-				searchesCh <- new(search).ing(k)
+			for search := range searching {
+				searched <- search.ing()
 			}
-			keysWg.Done()
+			searchWg.Done()
 		}()
 	}
 
 	go func() {
-		for s := range searchesCh {
+		for s := range searched {
 			result.collect(s)
 		}
 		resultWg.Done()
 	}()
 
-	for _, k := range keywords {
-		keysCh <- k
+	for i, k := range keywords {
+		s := search{Index: i, Keyword: k}
+		searching <- &s
 	}
 
-	close(keysCh)
-	keysWg.Wait()
-	close(searchesCh)
+	close(searching)
+	searchWg.Wait()
+	close(searched)
 	resultWg.Wait()
+	result.sort()
 	return result
 }
 
