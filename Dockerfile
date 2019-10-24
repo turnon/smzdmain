@@ -1,15 +1,15 @@
-FROM golang:alpine as builder
+FROM golang:1.13.3-alpine3.10 as builder
 
 WORKDIR $GOPATH/src/github.com/turnon/smzdm
-COPY *.go ./
+COPY . ./
 
 RUN apk add --no-cache git \
-    && git clone https://github.com/golang/net $GOPATH/src/golang.org/x/net \
+    && export GO111MODULE=on GOPROXY=https://goproxy.io \
     && go get ./... \
     && go build -o /smzdm \
     && apk del git
 
-FROM alpine:latest
+FROM alpine:3.10
 
 WORKDIR /root/
 COPY --from=builder /smzdm .
