@@ -27,5 +27,3 @@ func (out *html) print(ws ...io.Writer) {
 	now := out.createdAt.Format("06-01-02 15:04:05")
 	t.Execute(w, map[string]interface{}{"data": out.searches, "now": now})
 }
-
-var tmpl = make(map[string]string)
