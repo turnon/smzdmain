@@ -6,7 +6,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/turnon/smzdm/search"
+	"github.com/turnon/smzdm/smzdm"
 )
 
 const keysWorkerCount int = 2
@@ -37,7 +37,7 @@ func main() {
 }
 
 func process(keywords []string, result output) output {
-	searched := make(chan *search.Search)
+	searched := make(chan *smzdm.Search)
 	var searchWg sync.WaitGroup
 	searchWg.Add(keysWorkerCount)
 
@@ -50,7 +50,7 @@ func process(keywords []string, result output) output {
 
 	for i, k := range keywords {
 		go func(k string, i int) {
-			s := search.Query(k)
+			s := smzdm.Query(k)
 			s.Index = i
 			searched <- s
 		}(k, i)
