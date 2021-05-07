@@ -5,15 +5,15 @@ import (
 	"sort"
 	"time"
 
-	"github.com/turnon/smzdm/smzdm"
+	"github.com/turnon/smzdm/search"
 )
 
 type resultSet struct {
-	searches  []*smzdm.Search
+	searches  []*search.Search
 	createdAt time.Time
 }
 
-func (rs *resultSet) collect(s *smzdm.Search) {
+func (rs *resultSet) collect(s *search.Search) {
 	if len(rs.searches) == 0 {
 		rs.createdAt = time.Now()
 	}
@@ -37,7 +37,7 @@ func (rs *resultSet) sort() {
 }
 
 type output interface {
-	collect(*smzdm.Search)
+	collect(*search.Search)
 	sort()
 	print(...io.Writer)
 }
