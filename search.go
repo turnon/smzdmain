@@ -1,4 +1,4 @@
-package search
+package main
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ import (
 
 const (
 	https = "https:"
-	root  = "https://search.smzdm.com/"
+	root  = "http://search.smzdm.com/"
 	query = root + "/?v=b&c=home&s="
 )
 
@@ -31,21 +31,14 @@ func (e *entry) extract(s *goquery.Selection) *entry {
 	return e
 }
 
-type Search struct {
+type search struct {
 	doc     *goquery.Document
 	Index   int
 	Keyword string
 	Entries []*entry
 }
 
-func Query(keyword string) *Search {
-	s := Search{Keyword: keyword}
-	s.ing()
-	s.extract()
-	return &s
-}
-
-func (s *Search) ing() *Search {
+func (s *search) ing() *search {
 	key := url.QueryEscape(s.Keyword)
 	resp, err := http.Get(query + key)
 
@@ -64,7 +57,7 @@ func (s *Search) ing() *Search {
 	return s
 }
 
-func (s *Search) extract() {
+func (s *search) extract() {
 	s.doc.Find("#feed-main-list .feed-block").Each(func(i int, selection *goquery.Selection) {
 		e := new(entry).extract(selection)
 		s.Entries = append(s.Entries, e)
