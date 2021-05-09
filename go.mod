@@ -1,10 +1,8 @@
-module github.com/turnon/smzdm
+module github.com/turnon/smzdmain
 
 go 1.16
 
 require (
-	github.com/fatih/color v1.9.0
-	github.com/turnon/smzdm/search v0.0.0
+	github.com/fatih/color v1.10.0 // indirect
+	github.com/turnon/smzdm v0.3.0 // indirect
 )
-
-replace github.com/turnon/smzdm/search => ./search

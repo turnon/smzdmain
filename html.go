@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/turnon/smzdm/templates"
+	"github.com/turnon/smzdmain/templates"
 )
 
 type html struct {
